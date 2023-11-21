@@ -56,6 +56,7 @@ def show_json_by_id(request, id):
     data = Product.objects.filter(pk=id)
     return HttpResponse(serializers.serialize("json", data), content_type="application/json")
 
+@csrf_exempt
 def register(request):
     form = UserCreationForm()
 
@@ -68,6 +69,7 @@ def register(request):
     context = {'form':form}
     return render(request, 'register.html', context)
 
+@csrf_exempt
 def login_user(request):
     if request.method == 'POST':
         username = request.POST.get('username')
