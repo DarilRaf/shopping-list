@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block meta %}
+<title>Bookmark</title>
+<link rel="stylesheet" href="{% static 'homepage_static/css/styles.css' %}"/>
+<style>
+  
+.container {
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: space-evenly;
+    border: 1px solid black;
+
+    .item {
+    width: 10rem;
+    margin: 15px;
+    box-shadow: 5px 5px 10px #575757;
+
+}
+
+/* ================CARD SETTINGS================== */
+
+.card-img-top {
+    width: 10rem;
+    height: 15rem;  
+    object-fit: cover; /* Ensures the image covers the div without distortion */
+}
+
+.card-link {
+    text-decoration: none;
+}
+
+.card-link:hover .card {
+    /* optional: add some style when hovering over the card, e.g., change background */
+    background-color: #f5f5f5;
+}
+
+.card-link .card {
+    transition: background-color 0.3s ease; /* smooth transition for hover effect */
+}
+
+.card-title {
+    margin: 0;
+    height: 52px;
+
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; /* limits the content to a maximum of 2 lines */
+    -webkit-box-orient: vertical;
+}
+
+.card-text {
+    font-size: 14px;
+    font-style: italic;
+    color: black;
+    height: 1.5rem;
+    max-height: 3rem;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2; 
+    -webkit-box-orient: vertical;
+
+}
+
+
+/* Style untuk tombol Delete */
+.delete-button {
+    width: 10rem;
+    background-color: #94cbcb; 
+    color: #ffffff; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+.Read-button {
+    width: 10rem;
+    background-color: #94cbcb; 
+    color: #ffffff; 
+    border: none; 
+    padding: 10px 20px; 
+    border-radius: 5px; 
+    cursor: pointer; 
+}
+
+
+.delete-button:hover {
+    background-color: #ff3333; /
+}
+
+
+
+
+/* ===================ID SETTINGS================= */
+
+
+#searchBar {
+    max-width: 200px; 
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const searchBar = document.getElementById('searchBar');
+    const items = document.querySelectorAll('.item');
+    const deleteButtons = document.querySelectorAll('.delete-button');
+
+    searchBar.addEventListener('input', function() {
+        const searchQuery = searchBar.value.toLowerCase();
+
+        items.forEach(item => {
+            const title = item.querySelector('#title').textContent.toLowerCase();
+
+            if (title.includes(searchQuery)) {
+                item.style.display = 'block';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const item = button.closest('.item');
+            if (item) {
+                item.remove();
+            }
+        });
+    });
+
+    $(document).on('click', '.card-link', function() {
+        const bookId = $(this).data('book-id');
+        const title = $(this).data('title');
+        const author = $(this).data('author');
+        const year = $(this).data('year');
+        const genre = $(this).data('genre');
+        const pages = $(this).data('pages');
+        const description = $(this).data('description');
+        const thumbnail = $(this).data('thumbnail');
+        const ratings_avg = $(this).data('ratings_avg');
+        const ratings_count = $(this).data('ratings_count');
+        const isbn10 = $(this).data('isbn10');
+        const isbn13 = $(this).data('isbn13');
+        const source = $(this).data('source');
+
+        // Now populate the modal with these values
+        $("#modalBookTitle").text(title);
+        $('#modalBookThumbnail').attr('src', thumbnail);
+        $("#modalBookGenreYear").text(genre + " | " + year);
+        $("#modalBookAuthor").text(author);
+        $("#modalBookPages").text(pages);
+        $("#modalBookDescription").text(description);
+        $("#modalBookAvgRate").text(ratings_avg);
+        $("#modalBookCountRate").text(ratings_count);
+        $("#modalBookIsbn10").text(isbn10);
+        $("#modalBookIsbn13").text(isbn13);
+        
+        // Buttons
+        $('#buyOnAmazonButton').attr('href', `https://www.amazon.com/s?k=${isbn13}`);
+        $('#borrowReadButton').data('book-id', bookId);
+
+        // Check the source and adjust the button text
+        if(source === 'library') {
+            $('#borrowReadButton').text('Read');
+            $('#borrowReadButton').attr('class', 'btn btn-primary');
+        } else if(source === 'bookshelf') {
+            $('#borrowReadButton').attr('class', 'btn btn-success');
+            $('#borrowReadButton').text('Complete Reading');
+        }
+
+        // Finally, display the modal
+        $("#bookDetailsModal").modal('show');
+        $(document).on('click', '#borrowReadButton', function(event) {
+            event.preventDefault();
+            let bookId = $(this).data('book-id');
+            $.ajax({
+                url: '/booklibrary/borrow-book/', 
+                method: 'POST',
+                data: {
+                    'book_id': bookId,
+                    'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val()
+                },
+                success: function(response) {
+                    if (response.status === 'success') {
+                        showNotification();
+                        $('#bookDetailsModal').modal('hide');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
+                },
+                error: function() {
+                    alert('An error occurred. Please try again.');
+                }
+            });
+    
+            function showNotification() {
+                $('#notification').show().delay(5000).fadeOut(); 
+            }
+        });
+    });
+});
+</script>
+{% endblock meta %}
+
+{% block content %}
+
+<!-- BOOKIFY NAVBAR -->
+<nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex flex-shrink-0 items-center">
+            <h1 class="font-bold text-blue-500 text-2xl mt-0.5 mb-1 ml-0.5">B O O K I F Y</h1>
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4 ">
+                <a href="{% url 'homepage:show_homepage' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+            </div>
+          </div>
+        </div>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+          <button type="button" class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+            <span class="sr-only">View notifications</span>
+          </button>
+          <div class="relative ml-3">
+            {% if not user.is_authenticated %}
+            <div>
+                <button class="text-gray-300 hover-bg-gray-700 hover-text-white px-3 py-2 rounded-md text-sm font-medium" onclick="location.href='/login/'">Login</button>
+            </div>
+            {% else %} 
+            <div class="flex space-x-4">
+              <p class="text-gray-300 hover-text-white px-3 py-2 rounded-md text-sm font-medium">{{user.get_username}}</p>
+              <button class="text-gray-300 hover-bg-gray-700 hover-text-white px-3 py-2 rounded-md text-sm font-medium" onclick="location.href='/logout/'">Logout</button>
+            </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+</nav>
+
+<input type="text" class="form-control" id="searchBar" placeholder="Search for a book...">
+
+<div class="filter-form">
+  <form method="get" action="{% url 'bookmark:show_bookmark' %}">
+      <label for="genre">Filter by Genre:</label>
+      <select name="genre" id="genre">
+          <option value="">All Genres</option>
+          <option value="Fiction">Fiction</option>
+          <option value="Comics & Graphic Novels">Comics & Graphic Novels</option>   
+          <option value="Religion">Religion</option>
+          <option value="Philosophy">Philosophy</option>
+          <option value="Biography & Autobiography">Biography & Autobiography</option>
+          <option value="Literary Criticism">Literary Criticism</option>
+          <option value="Juvenile Fiction">Juvenile Fiction</option>   
+          <option value="History">History</option>
+          <option value="Mystery">Mystery</option>  
+          <option value="Drama">Drama</option>       
+      </select>
+
+      <button type="submit">Apply Filters</button>
+  </form>
+</div>
+
+<div class="container">
+    {% for book in bookmarks %}
+      <a href="#" class="card-link"
+      data-book-id="{{ book.book.book.id }}" 
+      data-title="{{ book.book.book.title }}"
+      data-author="{{ book.book.book.author }}"
+      data-year="{{ book.book.book.published_year }}"
+      data-genre="{{ book.book.book.genre }}"
+      data-pages="{{ book.book.book.pages }}"
+      data-description="{{ book.book.book.description }}"
+      data-thumbnail="{{ book.book.book.thumbnail }}"
+      data-ratings_avg="{{ book.book.book.ratings_avg }}"
+      data-ratings_count="{{ book.book.book.ratings_count }}"
+      data-isbn10="{{ book.book.book.isbn10 }}" 
+      data-isbn13="{{ book.book.book.isbn13 }}" 
+      data-source="library">
+
+      <div class="card item" data-book-id="{{ book.id }}">
+          <img src="{{ book.book.book.thumbnail }}" class="card-img-top" alt="a book">
+          <div class="card-body">
+              <h5 class="card-title" id="title">{{ book.book.book.title }}</h5>
+              <p class="card-text">{{ book.book.book.author }}</p>
+          </div>
+          <a href="{% url 'bookmark:delete_bookmark' book.id %}">
+            <button class="delete-button" id="deleteButtons">Delete</button>
+          </a> 
+      </div>
+    {% endfor %}
+</div>
+
+<!-- Existing code below the bookmarks -->
+<div class="modal fade" id="bookDetailsModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalBookTitle">Book Title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <!-- Book details go here --> 
+        <img id="modalBookThumbnail" src="" alt="Book Thumbnail">
+        <br>
+        <h6><b>Description:</b></h6>
+        <p id="modalBookDescription"></p>
+        <p class="no-margin"> <b><span id="modalBookGenreYear"></span></b> </p>
+        <p class="no-margin"><b>Author :</b> <span id="modalBookAuthor"></span></p>
+        <p class="no-margin"><b>Pages :</b> <span id="modalBookPages"></span></p>
+        <p class="no-margin"><b>Rating :</b> <span id="modalBookAvgRate"></span>/5</p>
+        <p class="no-margin"><b>Total Reviewer :</b> <span id="modalBookCountRate"></span></p>
+        <p class="no-margin"><b>ISBN-10 :</b> <span id="modalBookIsbn10"></span></p>
+        <p class="no-margin"><b>ISBN-13 :</b> <span id="modalBookIsbn13"></span></p>
+        <br>
+
+        <button id="borrowReadButton" class="btn btn-primary">Read</button>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

@@ -1,0 +1,107 @@
+body {
+  background-color: #01baef; /* Warna latar belakang */
+  font-family: Arial, sans-serif;
+}
+
+.bg-gray-800 {
+  background-color: #94cbcb; /* Warna latar belakang navbar */
+}
+
+.text-blue-500 {
+  color: #ffe91e; /* Warna teks judul */
+}
+
+.text-gray-300 {
+  color: #000000; /* Warna teks navbar */
+}
+
+.text-gray-900 {
+  color: #000000; /* Warna teks judul card */
+}
+
+.text-gray-700 {
+  color: #000000; /* Warna teks penjelasan */
+}
+
+.bg-blue-100 {
+  background-color: #add8e6; /* Warna latar belakang konten */
+}
+
+.bg-white {
+  background-color: #fff; /* Warna latar belakang card */
+}
+
+.rounded-lg {
+  border-radius: 8px;
+}
+
+.shadow-md {
+  box-shadow: 0px 0px 10px rgba(255, 205, 129, 0.767);
+}
+
+.p-5 {
+  padding: 1.25rem;
+}
+
+.font-normal {
+  font-weight: normal;
+}
+
+.rounded-md {
+  border-radius: 4px;
+}
+
+.hover:-translate-y-2 {
+  transition: transform 0.3s;
+}
+
+.shadow-lg {
+  box-shadow: pink;
+}
+
+.shadow-2xl {
+  box-shadow: pink;
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.hover:bg-blue-700:hover {
+  background-color: #98cbff; /* Warna latar belakang hover */
+}
+
+.text-white {
+  color: #fff;
+}
+
+.bg-blue-500 {
+  background-color: #77bbff; /* Warna latar belakang tombol */
+}
+
+.hover:bg-blue-700:hover {
+  background-color: #8dbbe9; /* Warna latar belakang tombol hover */
+}
+
+.focus:ring-4 {
+  outline: none;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  box-shadow: 0 0 0 3px #63b3ed; /* Warna cincin fokus */
+}
+
+.focus:outline-none {
+  outline: none;
+}
+
+.text-blue-700 {
+  color: #f1b500; /* Warna teks tombol hover */
+}
+
+.bg-slate-800 {
+  background-color: #708090; /* Warna latar belakang bagian "About Us" */
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}

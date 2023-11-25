@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<nav class="bg-gray-800">
+    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+      <div class="relative flex h-16 items-center justify-between">
+        <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+          <div class="flex flex-shrink-0 items-center">
+            <h1 class="font-bold text-blue-500 text-2xl mt-0.5 mb-1 ml-0.5">B O O K I F Y</h1>
+          </div>
+          <div class="hidden sm:ml-6 sm:block">
+            <div class="flex space-x-4 ">
+                <a href="{% url 'homepage:show_homepage' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+            </div>
+          </div>
+        </div>
+        <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+          <button type="button" class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+            <span class="sr-only">View notifications</span>
+            
+          </button>
+
+          <div class="relative ml-3">
+            {% if not user.is_authenticated %}
+            <div>
+                <button class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" onclick="location.href='/login/'">Login</button>
+            </div>
+            {% else %} 
+          
+            <div class="flex space-x-4">
+              <p class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">{{user.get_username}}</p>
+              <button class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" onclick="location.href='/logout/'">Logout</button>
+            </div>
+            {% endif %}
+          </div>
+
+        </div>
+      </div>
+    </div>
+</nav>
+<div class="container mt-5">
+    <h3 class="text-center">Halo, {{ name }}</h3>
+    <div class="text-center">
+        <h5>Kamu sudah mendonasikan sebanyak <span id="jumlah_item">{{ jumlah_item }} buku</span></h5>
+        <h5>Total poinmu sekarang ada : <span id="jumlah_poin">{{ jumlah_poin }} poin</span></h5>
+    </div>
+
+
+   
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Add New Product</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="form" onsubmit="return false;">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="judul_buku" class="col-form-label">Judul buku :</label>
+                            <input type="text" class="form-control" id="judul_buku" name="judul_buku"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="total_buku" class="col-form-label">Total buku yang didonasikan :</label>
+                            <input type="number" class="form-control" id="total_buku" name="total_buku"></input>
+                        </div>
+                        <div class="mb-3">
+                            <label for="resi" class="col-form-label">Resi pengiriman :</label>
+                            <textarea class="form-control" id="resi" name="resi"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Product</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+    <table class="table table-bordered mt-4">
+        <thead>
+            <tr>
+                <th>Judul buku</th>
+                <th>Total buku</th>
+                <th>Resi</th>
+                <th>Edit</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for product in products %}
+            <tr>
+                <td>{{ product.judul_buku }}</td>
+                <td>
+                    <span id="amount_{{ product.id }}">{{ product.total_buku }}</span>
+                    <button class="btn btn-primary btn-sm btn-increment" data-product-id="{{ product.id }}" data-increment="1" data-action="{% url 'bookdonation:tambah_produk' product.id %}">+</button>
+                    <button class="btn btn-primary btn-sm btn-decrement" data-product-id="{{ product.id }}" data-increment="-1" data-action="{% url 'bookdonation:kurang_produk' product.id %}">-</button>
+                </td>
+                <td>{{ product.resi }}</td>
+                <td>
+                    <form method="post" action="{% url 'bookdonation:hapus_produk' product.id %}">
+                        {% csrf_token %}
+                       
+                        <button class="btn btn-danger btn-sm btn-hapus" data-product-id="{{ product.id }}">Hapus AJAX</button>
+                </td>
+                <td>
+                    <form method="post" action="{% url 'bookdonation:hapus_produk' product.id %}">
+                        {% csrf_token %}
+                       
+                        <button > Terverifikasi </button>
+                </td>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <div class="text-center mt-4">
+       
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Donasikan buku sendiri
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-donation-type="library">Donasi buku dari library</button>
+
+    </div>
+
+    
+
+
+
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const donasiButtons = document.querySelectorAll('[data-donation-type]');
+
+        donasiButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const donationType = this.getAttribute('data-donation-type');
+
+                if (donationType === 'library') {
+                    // Handle action for library donation
+                    // Anda dapat menentukan tindakan khusus untuk donasi dari perpustakaan di sini
+                    // Misalnya, tampilkan modal yang berbeda atau lakukan permintaan AJAX yang berbeda.
+                    alert('Donasi dari library');
+                } else if (donationType === 'pribadi') {
+                    // Handle action for personal donation (default action)
+                    // Anda dapat tetap menjalankan logika aslinya di sini.
+                    alert('Donasi pribadi');
+                }
+            });
+        });
+    
+        decrementButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const productId = this.getAttribute('data-product-id');
+                const incrementValue = parseInt(this.getAttribute('data-increment'));
+                const action = this.getAttribute('data-action');
+
+                // Kirim permintaan AJAX ke action
+                fetch(action, {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Perbarui tampilan dengan data jumlah produk yang baru
+                    const amountElement = document.getElementById(`amount_${productId}`);
+                    amountElement.innerText = data.new_amount;
+
+                    // Refresh laman setelah pembaruan
+                    location.reload();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            });
+        });
+    });
+</script>
+{% endblock content %}

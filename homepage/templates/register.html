@@ -1,0 +1,90 @@
+{% extends 'base.html' %} 
+{% block meta %}
+
+<title>Register</title>
+
+<style>
+  input[type="text"], input[type="email"], input[type="password"] {
+      border: 1px solid #000; /* Border berwarna hitam */
+  }
+
+  .card {
+      background-color: #FBFBFF; /* Warna latar belakang card */
+  }
+
+  .card-header {
+      background-color: #345995; /* Warna latar belakang header card */
+  }
+
+  .card-title {
+      color: #FBFBFF; /* Warna teks judul card */
+  }
+
+  .card-body {
+      background-color: #01BAEF; /* Warna latar belakang isi card */
+  }
+
+  .btn-primary {
+      background-color: #03CEA4; /* Warna latar belakang tombol Daftar */
+      color: #FBFBFF; /* Warna teks tombol Daftar */
+  }
+</style>
+
+{% endblock meta %} 
+
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">Register</h1>
+        </div>
+        <div class="card-body">
+            {{ form.email.errors }}
+            <form method="POST">
+                {% csrf_token %}
+                <table>
+                    {{ form.as_table }}
+                    <tr>
+                        <td></td>
+                        <td><input type="submit" name="submit" value="Daftar" class="btn btn-primary" /></td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+
+    {% if messages %}
+    <ul>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</div>
+{% endblock content %}
+
+
+<script>
+  $(document).ready(function() {
+      $("#registration-form").on("submit", function(event) {
+          event.preventDefault(); // Menghentikan pengiriman formulir default
+          
+          $.ajax({
+              type: "POST",
+              url: "{% url 'homepage:register' %}", // Ganti dengan URL yang sesuai
+              data: $(this).serialize(),
+              success: function(data) {
+                  // Proses respons di sini, misalnya menampilkan pesan sukses
+                  alert("Registrasi berhasil!");
+                  // Atau jika Anda ingin mengarahkan pengguna ke halaman lain:
+                  // window.location.href = "{% url 'homepage:show_homepage' %}";
+              },
+              error: function(xhr, errmsg, err) {
+                  alert("Gagal melakukan registrasi. Silakan coba lagi.");
+              }
+          });
+      });
+  });
+  </script>
+  
