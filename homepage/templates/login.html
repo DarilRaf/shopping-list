@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block meta %}
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'homepage_static/css/login.css' %}"/>
+
+    <style>
+        input[type="text"], input[type="email"], input[type="password"] {
+            border: 1px solid #000; /* Border berwarna hitam */
+        }
+      
+        .card {
+            background-color: #FBFBFF; /* Warna latar belakang card */
+        }
+      
+        .card-header {
+            background-color: #345995; /* Warna latar belakang header card */
+        }
+      
+        .card-title {
+            color: #FBFBFF; /* Warna teks judul card */
+        }
+      
+        .card-body {
+            background-color: #01BAEF; /* Warna latar belakang isi card */
+        }
+      
+        .btn-primary {
+            background-color: #03CEA4; /* Warna latar belakang tombol Daftar */
+            color: #FBFBFF; /* Warna teks tombol Daftar */
+        }
+      </style>
+      
+
+{% endblock meta %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="card">
+        <div class="card-header">
+            <h1 class="card-title">Login</h1>
+        </div>
+        <div class="card-body">
+            <div class="isi">
+                <form id="login-form" method="POST" action="{% url 'homepage:login' %}">
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                            <td>Username: </td>
+                            <td><input type="text" name="username" placeholder="Username" class="form-control"></td>
+                        </tr>
+                                
+                        <tr>
+                            <td>Password: </td>
+                            <td><input type="password" name="password" placeholder="Password" class="form-control"></td>
+                        </tr>
+
+                        <tr>
+                            <td></td>
+                            <td><input class="btn login_btn" type="submit" value="Login"></td>
+                        </tr>
+                    </table>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="login-messages">
+        {% if messages %}
+            <ul>
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}     
+    </div>
+
+    <p>Don't have an account yet? <a href="{% url 'homepage:register' %}">Register Now</a></p>
+</div>
+
+<script>
+$(document).ready(function() {
+    $("#login-form").on("submit", function(event) {
+        event.preventDefault();
+
+        $.ajax({
+            type: "POST",
+            url: "{% url 'homepage:login' %}",
+            data: $(this).serialize(),
+            success: function(data) {
+                alert("Login successful!");
+                window.location.href = "{% url 'homepage:show_homepage' %}";
+            },
+            error: function(xhr, errmsg, err) {
+                alert("Login failed. Please try again.");
+            }
+        });
+    });
+});
+</script>
+
+{% endblock content %}

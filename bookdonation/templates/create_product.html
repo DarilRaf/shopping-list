@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Add New Product</h1>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="form-group">
+                    {{ form.nama_pengirim.label_tag }}
+                    {{ form.nama_pengirim }}
+                </div>
+                <div class="form-group">
+                    {{ form.total_buku.label_tag }}
+                    {{ form.total_buku }}
+                </div>
+                <div class="form-group">
+                    {{ form.resi.label_tag }}
+                    {{ form.resi }}
+                </div>
+                <div class="text-center">
+                    <button class="btn btn-primary" type="submit">Add Product</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+{% endblock %}

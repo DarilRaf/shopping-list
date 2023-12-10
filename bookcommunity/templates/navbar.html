@@ -1,0 +1,149 @@
+<style>
+    body {
+      background-color: #fde3a7; /* Warna latar belakang */
+      font-family: Arial, sans-serif;
+  }
+  
+  .bg-gray-800 {
+      background-color: #94cbcb; /* Warna latar belakang navbar */
+  }
+  
+  .text-blue-500 {
+      color: #ffe91e; /* Warna teks judul */
+  }
+  
+  .text-gray-300 {
+      color: #000000; /* Warna teks navbar */
+  }
+  
+  .text-gray-900 {
+      color: #000000; /* Warna teks judul card */
+  }
+  
+  .text-gray-700 {
+      color: #000000; /* Warna teks penjelasan */
+  }
+  
+  .bg-blue-100 {
+      background-color: #add8e6; /* Warna latar belakang konten */
+  }
+  
+  .bg-white {
+      background-color: #fff; /* Warna latar belakang card */
+  }
+  
+  .rounded-lg {
+      border-radius: 8px;
+  }
+  
+  .shadow-md {
+      box-shadow: 0px 0px 10px rgba(255, 205, 129, 0.767);
+  }
+  
+  .p-5 {
+      padding: 1.25rem;
+  }
+  
+  .font-normal {
+      font-weight: normal;
+  }
+  
+  .rounded-md {
+      border-radius: 4px;
+  }
+  
+  .hover:-translate-y-2 {
+      transition: transform 0.3s;
+  }
+  
+  .shadow-lg {
+      box-shadow: pink;
+  }
+  
+  .shadow-2xl {
+      box-shadow: pink;
+  }
+  
+  .overflow-hidden {
+      overflow: hidden;
+  }
+  
+  .hover:bg-blue-700:hover {
+      background-color: #98cbff; /* Warna latar belakang hover */
+  }
+  
+  .text-white {
+      color: #fff;
+  }
+  
+  .bg-blue-500 {
+      background-color: #77bbff; /* Warna latar belakang tombol */
+  }
+  
+  .hover:bg-blue-700:hover {
+      background-color: #8dbbe9; /* Warna latar belakang tombol hover */
+  }
+  
+  .focus:ring-4 {
+      outline: none;
+      border: 2px solid transparent;
+      border-radius: 12px;
+      box-shadow: 0 0 0 3px #63b3ed; /* Warna cincin fokus */
+  }
+  
+  .focus:outline-none {
+      outline: none;
+  }
+  
+  .text-blue-700 {
+      color: #f1b500; /* Warna teks tombol hover */
+  }
+  
+  .bg-slate-800 {
+      background-color: #708090; /* Warna latar belakang bagian "About Us" */
+  }
+  
+  .text-2xl {
+      font-size: 1.5rem;
+  }
+  </style>
+  
+    <!-- nav bar -->
+    <nav class="bg-gray-800">
+      <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div class="relative flex h-16 items-center justify-between">
+          <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
+            <div class="flex flex-shrink-0 items-center">
+              <h1 class="font-bold text-blue-500 text-2xl mt-0.5 mb-1 ml-0.5">B O O K I F Y</h1>
+            </div>
+            <div class="hidden sm:ml-6 sm:block">
+              <div class="flex space-x-4 ">
+                  <a href="{% url 'homepage:show_homepage' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+                  <a href="{% url 'bookcommunity:show_community' %}" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Community</a>
+              </div>
+            </div>
+          </div>
+          <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+            <button type="button" class="rounded-full bg-gray-800 p-1 text-gray-400 hover:text-white focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+              <span class="sr-only">View notifications</span>
+              
+            </button>
+  
+            <div class="relative ml-3">
+              {% if not user.is_authenticated %}
+              <div>
+                  <button class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" onclick="location.href='/login/'">Login</button>
+              </div>
+              {% else %} 
+            
+              <div class="flex space-x-4">
+                <p class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">{{user.get_username}}</p>
+                <button class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium" onclick="location.href='/logout/'">Logout</button>
+              </div>
+              {% endif %}
+            </div>
+  
+          </div>
+        </div>
+      </div>
+    </nav>

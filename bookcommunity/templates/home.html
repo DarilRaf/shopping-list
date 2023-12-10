@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% block content %}
+{% include 'navbar.html' %}
+<html class="bg-blue-100">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Bookify Community</title>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous"0>
+        <style>
+            .box{
+                border: 4px solid black;
+                margin: 0 auto;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="bg-blue-100">
+            <h1 class="jumbotron" style="background-color:rgb(0, 76, 121);color:#ffe91e ;">
+                Currently active forums : <span id="forumCount">{{ count }}</span>
+                <br>
+               <!-- modal forum -->
+                <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h1 class="modal-title fs-4" id="exampleModalLabel">Add New Forum</h1>
+                                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form id="form" onsubmit="return false;">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label for="book" class="form-label">Book:</label>
+                                        <select class="form-select" id="book" name="book">
+                                            <option value="" disabled selected>Select a book</option>
+                                            {% for book in books %}
+                                                <option value="{{ book.title }}">{{ book.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="subject" class="form-label">Subject:</label>
+                                        <input type="text" class="form-control" id="subject" name="subject">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="description" class="form-label">Description:</label>
+                                        <textarea class="form-control" id="description" name="description"></textarea>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="button_add" data-bs-dismiss="modal">Add Forum</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% if not user.is_authenticated %}
+                    
+                {% else %}
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add New Forum</button>
+                {% endif %}
+                <!-- modal search by book book title -->
+                <div class="modal fade" id="bookModal" tabindex="-1" aria-labelledby="bookModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header bg-primary text-white">
+                                <h1 class="modal-title fs-4" id="bookModalLabel">Search by Book</h1>
+                                <button type="button" class="btn-close text-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form>
+                                    <div class="form-group">
+                                        <label for="bookSelect">Choose a book:</label>
+                                        <select class="form-select" id="bookSelect">
+                                            <option value="allBooks"><span style="color: aqua;">All books</span></option>
+                                            {% for book in books %}
+                                                <option value="{{ book.title }}">{{ book.title }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="button" class="btn btn-primary" id="button_search" data-bs-dismiss="modal">Search</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bookModal">Search by Book</button>
+            </h1>
+
+            <div id="forum_container"></div>
+        </div>
+
+
+    </body>
+</html>
+
+<script>
+
+    function updateForumsCount(count){
+        document.getElementById("forumCount").innerText = count;
+    }
+    document.getElementById("button_search").addEventListener("click", function () {
+        const bookSelect = document.getElementById("bookSelect");
+        const selectedBook = bookSelect.value;
+
+        if (selectedBook === "allBooks") {
+            refreshForumsAndDiscussions();
+            return;
+        }
+        refreshForumsAndDiscussionsByBookTitle(selectedBook);
+    });
+    async function refreshForumsAndDiscussionsByBookTitle(BookTitle) {
+        const response = await fetch("{% url 'bookcommunity:get_forums_and_discussions' %}");
+        const data = await response.json();
+
+        const filteredForums = data.forums.filter(forum => forum.book === BookTitle);
+        updateForumsCount(filteredForums.length);
+
+        const forumContainer = document.getElementById("forum_container");
+        forumContainer.innerHTML = "";  // Clear the container
+        filteredForums.forEach(forum => {
+            const forumDiv = document.createElement("div");
+            forumDiv.classList.add("card", "box", "container");
+            forumDiv.style.borderRadius = "10px"; // Round corners
+            forumDiv.style.boxShadow = "0 4px 8px 0 rgba(0, 0, 0, 0.2)"; // Add shadow
+            forumDiv.innerHTML = `
+                <br>
+                <h5 class="card-title">
+                    <p style="font-size: 12px;">Posted on: ${new Date(forum.user.date_created).toLocaleString()}</p>
+                    <h3>Book : ${forum.book}</h3>
+                    <h3>Subject : ${forum.subject}</h3>
+                    <div class="card-body container">
+                        <p style="background-color:#f5f2f2">${forum.description}</p>
+                    </div>
+                </h5>
+                <hr>
+                <p> By: <span style="color:#00d4fa;">${forum.user.username}</span></p>
+                <hr>
+                <h4>Views from other users</h4>
+            `;
+
+            data.discussions.forEach(discuss => {
+                if (discuss.forum === forum.user.id) {
+                    const discussDiv = document.createElement("div");
+                    discussDiv.innerHTML = `<span class="highlight" style="color:#00d4fa;">${discuss.user.username}</span> : ${discuss.discuss}`;
+                    forumDiv.appendChild(discussDiv);
+                    forumDiv.appendChild(document.createElement("br"));
+                }
+            });
+
+            const discussionForm = document.createElement("form");
+            discussionForm.innerHTML = `
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Add your discussion..." name="discuss_input" id="discuss_input_${forum.user.id}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="button" onclick="addDiscussion(${forum.user.id})">Submit</button>
+                    </div>
+                </div>
+            `;
+            forumDiv.appendChild(discussionForm);
+
+            if (forum.user.isloggedin) {
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.classList.add("btn", "btn-danger");
+                deleteButton.style.width = "100px"; 
+                deleteButton.style.marginLeft = "10px";
+                deleteButton.style.marginBottom = "20px";
+                deleteButton.onclick = function() {
+                    deleteForum(forum.user.id);
+                };
+
+                // Append the delete button to the forumDiv
+                forumDiv.appendChild(deleteButton);
+            }
+
+
+
+            forumContainer.appendChild(forumDiv);
+            forumContainer.appendChild(document.createElement("br"));
+        });
+    }
+    
+    async function refreshForumsAndDiscussions() {
+        const response = await fetch("{% url 'bookcommunity:get_forums_and_discussions' %}");
+        const data = await response.json();
+
+        const forumContainer = document.getElementById("forum_container");
+        forumContainer.innerHTML = "";  // Clear the container
+        updateForumsCount(data.forums.length);
+        data.forums.forEach(forum => {
+            const forumDiv = document.createElement("div");
+            forumDiv.classList.add("card", "box", "container");
+            forumDiv.style.borderRadius = "10px"; // Round corners
+            forumDiv.style.boxShadow = "0 4px 8px 0 rgba(0, 0, 0, 0.2)"; // Add shadow
+            forumDiv.innerHTML = `
+                <br>
+                <h5 class="card-title">
+                    <p style="font-size: 12px;">Posted on: ${new Date(forum.user.date_created).toLocaleString()}</p>
+                    <h3>Book : ${forum.book}</h3>
+                    <h3>Subject : ${forum.subject}</h3>
+                    <div class="card-body container">
+                        <p style="background-color:#f5f2f2">${forum.description}</p>
+                    </div>
+                </h5>
+                <hr>
+                <p> By: <span style="color:#00d4fa;">${forum.user.username}</span></p>
+                <hr>
+                <h4>Views from other users</h4>
+            `;
+
+            data.discussions.forEach(discuss => {
+                if (discuss.forum === forum.user.id) {
+                    const discussDiv = document.createElement("div");
+                    discussDiv.innerHTML = `<span class="highlight" style="color:#00d4fa;">${discuss.user.username}</span> : ${discuss.discuss}`;
+                    forumDiv.appendChild(discussDiv);
+                    forumDiv.appendChild(document.createElement("br"));
+                }
+            });
+
+            const discussionForm = document.createElement("form");
+            discussionForm.innerHTML = `
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="Add your discussion..." name="discuss_input" id="discuss_input_${forum.user.id}">
+                    <div class="input-group-append">
+                        <button class="btn btn-outline-primary" type="button" onclick="addDiscussion(${forum.user.id})">Submit</button>
+                    </div>
+                </div>
+            `;
+            forumDiv.appendChild(discussionForm);
+
+            if (forum.user.isloggedin) {
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "Delete";
+                deleteButton.classList.add("btn", "btn-danger");
+                deleteButton.style.width = "100px"; 
+                deleteButton.style.marginLeft = "10px";
+                deleteButton.style.marginBottom = "20px";
+                deleteButton.onclick = function() {
+                    deleteForum(forum.user.id);
+                };
+
+                // Append the delete button to the forumDiv
+                forumDiv.appendChild(deleteButton);
+            }
+
+
+
+            forumContainer.appendChild(forumDiv);
+            forumContainer.appendChild(document.createElement("br"));
+        });
+    }
+
+    // Call the function to initially populate the forums and discussions
+    refreshForumsAndDiscussions();
+
+    function addDiscussion(forumId) {
+        const discuss = document.getElementById(`discuss_input_${forumId}`).value;
+
+        const formData = new FormData();
+        formData.append('forum_id', forumId);
+        formData.append('discuss', discuss);
+
+        fetch("{% url 'bookcommunity:add_discussion_ajax' %}", {
+            method: "POST",
+            body: formData
+        }).then(refreshForumsAndDiscussions)
+        document.getElementById(`discuss_input_${forumId}`).reset()
+        return false
+    }
+
+
+    function addProduct() {
+        fetch("{% url 'bookcommunity:add_product_ajax' %}", {
+            method: "POST",
+            body: new FormData(document.querySelector('#form'))
+        }).then(refreshForumsAndDiscussions)
+        document.getElementById("form").reset()                                                              
+        return false
+    }
+
+    
+    document.getElementById("button_add").onclick = function () {
+        addProduct();
+    };
+
+    function deleteForum(forumId){
+        fetch("{% url 'bookcommunity:delete_forum_ajax' forum_id=0 %}".replace('0', forumId),{
+            method : "DELETE"
+        }).then(refreshForumsAndDiscussions)
+        return false
+    }
+
+
+
+</script>
+{% endblock content %}
